@@ -33,7 +33,7 @@ class MyStatefulWidget extends StatefulWidget {
 /// This is the private State class that goes with MyStatefulWidget.
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
-  List<Widget> screens = [Featured(), Newest(), Collection(), About()];
+  List<Widget> screens = [Clock(), Music(), Water(), About()];
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +92,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class Featured extends StatelessWidget {
+class Clock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,7 +205,7 @@ class CurvedListItem extends StatelessWidget {
 
 
 //////////////////////////////////////////////////////////////////////////////
-class Newest extends StatelessWidget {
+class Music extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -227,7 +227,7 @@ class Newest extends StatelessWidget {
   }
 }
 
-class Collection extends StatelessWidget {
+class Water extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
