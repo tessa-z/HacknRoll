@@ -216,6 +216,7 @@ class _MusicState extends State<Music> {
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       padding: EdgeInsets.all(12.0),
       child: ListView(
@@ -227,33 +228,54 @@ class _MusicState extends State<Music> {
             style: TextStyle(
                 fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold),
           ),
-          ListTile(
-            title: Text(songList[0]),
-            leading: Radio(
-              value: 0,
-              groupValue: _song,
-              onChanged: (value) {
-                this.setState((){
-                  _song = value;
-                });
-              },
-            ),
-          ),
-          ListTile(
-            title: Text(songList[1]),
-            leading: Radio(
-              value: 1,
-              groupValue: _song,
-              onChanged: (value) {
-                this.setState((){
-                  _song = value;
-                });
-              },
-            ),
-          ),
+          // ListTile(
+          //   title: Text(songList[0]),
+          //   leading: Radio(
+          //     value: 0,
+          //     groupValue: _song,
+          //     onChanged: (value) {
+          //       this.setState((){
+          //         _song = value;
+          //       });
+          //     },
+          //   ),
+          // ),
+          // ListTile(
+          //   title: Text(songList[1]),
+          //   leading: Radio(
+          //     value: 1,
+          //     groupValue: _song,
+          //     onChanged: (value) {
+          //       this.setState((){
+          //         _song = value;
+          //       });
+          //     },
+          //   ),
+          // ),
+          ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: songList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return new ListTile(
+                title: Text(songList[index]),
+                leading: Radio(
+                  value: index,
+                  groupValue: _song,
+                  onChanged: (value) {
+                    this.setState(() {
+                      _song = value;
+                    });
+                  },
+                ),
+              );
+            },
+          )
         ],
       ),
     );
+
+
   }
 }
 
