@@ -6,6 +6,7 @@
 // `_selectedIndex` is updated by the `onDestinationSelected` callback.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 void main() => runApp(MyApp());
 
@@ -210,6 +211,8 @@ class Music extends StatefulWidget {
 class _MusicState extends State<Music> {
   var _song = 0;
   var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
+
+  FlutterBlue flutterBlue = FlutterBlue.instance;
 
   @override
   Widget build(BuildContext context) {
