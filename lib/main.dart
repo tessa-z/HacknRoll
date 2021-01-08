@@ -205,7 +205,15 @@ class CurvedListItem extends StatelessWidget {
 
 
 //////////////////////////////////////////////////////////////////////////////
-class Music extends StatelessWidget {
+class Music extends StatefulWidget {
+  @override
+  _MusicState createState() => _MusicState();
+}
+
+class _MusicState extends State<Music> {
+  var _song = 0;
+  var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -218,9 +226,31 @@ class Music extends StatelessWidget {
             "Choose Your Music!",
             style: TextStyle(
                 fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold),
-
           ),
-
+          ListTile(
+            title: Text(songList[0]),
+            leading: Radio(
+              value: 0,
+              groupValue: _song,
+              onChanged: (value) {
+                this.setState((){
+                  _song = value;
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: Text(songList[1]),
+            leading: Radio(
+              value: 1,
+              groupValue: _song,
+              onChanged: (value) {
+                this.setState((){
+                  _song = value;
+                });
+              },
+            ),
+          ),
         ],
       ),
     );
