@@ -33,7 +33,7 @@ class MyStatefulWidget extends StatefulWidget {
 /// This is the private State class that goes with MyStatefulWidget.
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
-  List<Widget> screens = [Featured(), Newest(), Collection(), About()];
+  List<Widget> screens = [Clock(), Music(), Water(), About()];
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +92,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class Featured extends StatelessWidget {
+class Clock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,9 +205,18 @@ class CurvedListItem extends StatelessWidget {
 
 
 //////////////////////////////////////////////////////////////////////////////
-class Newest extends StatelessWidget {
+class Music extends StatefulWidget {
+  @override
+  _MusicState createState() => _MusicState();
+}
+
+class _MusicState extends State<Music> {
+  var _song = 0;
+  var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
+
   @override
   Widget build(BuildContext context) {
+
     return Container(
       padding: EdgeInsets.all(12.0),
       child: ListView(
@@ -218,16 +227,59 @@ class Newest extends StatelessWidget {
             "Choose Your Music!",
             style: TextStyle(
                 fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold),
-
           ),
-
+          // ListTile(
+          //   title: Text(songList[0]),
+          //   leading: Radio(
+          //     value: 0,
+          //     groupValue: _song,
+          //     onChanged: (value) {
+          //       this.setState((){
+          //         _song = value;
+          //       });
+          //     },
+          //   ),
+          // ),
+          // ListTile(
+          //   title: Text(songList[1]),
+          //   leading: Radio(
+          //     value: 1,
+          //     groupValue: _song,
+          //     onChanged: (value) {
+          //       this.setState((){
+          //         _song = value;
+          //       });
+          //     },
+          //   ),
+          // ),
+          ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: songList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return new ListTile(
+                title: Text(songList[index]),
+                leading: Radio(
+                  value: index,
+                  groupValue: _song,
+                  onChanged: (value) {
+                    this.setState(() {
+                      _song = value;
+                    });
+                  },
+                ),
+              );
+            },
+          )
         ],
       ),
     );
+
+
   }
 }
 
-class Collection extends StatelessWidget {
+class Water extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
