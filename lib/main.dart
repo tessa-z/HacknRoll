@@ -1,5 +1,4 @@
 /// Flutter code sample for NavigationRail
-
 // This example shows a [NavigationRail] used within a Scaffold with 3
 // [NavigationRailDestination]s. The main content is separated by a divider
 // (although elevation on the navigation rail can be used instead). The
@@ -35,14 +34,15 @@ class MyStatefulWidget extends StatefulWidget {
 /// This is the private State class that goes with MyStatefulWidget.
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
-  List<Widget> screens = [Clock(), Music(), Water(), About(), Bluetooth()];
+
+  List<Widget> screens = [Alarm(), Music(), Water(), About(), Bluetooth()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Morning Pal'),
+        title: Text('H20Clock'),
       ),
       body: Row(
         children: <Widget>[
@@ -92,109 +92,49 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-class Clock extends StatelessWidget {
+class Alarm extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView(
-        scrollDirection: Axis.vertical,
-        children: <Widget>[
-          CurvedListItem(
-            title: '06:00',
-            color: Colors.indigo[900],
-            nextColor: Colors.indigo[800],
-          ),
-          CurvedListItem(
-            title: '06:30',
-            color: Colors.indigo[800],
-            nextColor: Colors.indigo[700],
-          ),
-          CurvedListItem(
-            title: '07:00',
-            color: Colors.indigo[700],
-            nextColor: Colors.indigo[600],
-          ),
-          CurvedListItem(
-            title: '07:30',
-            color: Colors.indigo[600],
-            nextColor: Colors.indigo[500],
-          ),
-          CurvedListItem(
-            title: '08:00',
-            color: Colors.indigo[500],
-            nextColor: Colors.indigo[400],
-          ),
-          CurvedListItem(
-            title: '08:30',
-            color: Colors.indigo[400],
-            nextColor: Colors.blue[500],
-          ),
-          CurvedListItem(
-            title: '09:00',
-            color: Colors.blue[500],
-            nextColor: Colors.blue[400],
-          ),
-          CurvedListItem(
-            title: '09:30',
-            color: Colors.blue[400],
-            nextColor: Colors.blue[300],
-          ),
-          CurvedListItem(
-            title: '10:00',
-            color: Colors.blue[300],
-            nextColor: Colors.blue[200],
-          ),
-        ],
-      ),
-    );
-  }
+  _AlarmState createState() => _AlarmState();
 }
 
-class CurvedListItem extends StatelessWidget {
-  const CurvedListItem({
-    this.title,
-    this.icon,
-    this.people,
-    this.color,
-    this.nextColor,
-  });
+class _AlarmState extends State<Alarm> {
+  TimeOfDay _time = TimeOfDay.now();
+  TimeOfDay picked;
+  String time = '10:10';
 
-  final String title;
-  final String people;
-  final IconData icon;
-  final Color color;
-  final Color nextColor;
+  Future<Null> selectTime(BuildContext context) async {
+    picked = await showTimePicker(
+      context: context,
+      initialTime: _time,
+    );
+
+    setState(() {
+      _time = picked;
+      print(_time);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: nextColor,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(0.0),
-          ),
-          border: Border.all(width: 3.0),
-        ),
-        padding: const EdgeInsets.only(
-          left: 60,
-          top: 30.0,
-          bottom: 40,
-        ),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                title,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold),
-              ),
-              Row(),
-            ]),
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Set Your Alarm!'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: ListTile(
+            title: Text(time,
+              style: TextStyle(fontSize: 40, color: Colors.indigo)),
+            trailing: Icon(Icons.alarm, size:60),
+            onTap: () {
+              selectTime(context);
+              time = '${_time.hour}:${_time.minute}';
+            },
+          )
+        )
       ),
     );
   }
@@ -228,7 +168,8 @@ class _MusicState extends State<Music> {
             itemCount: songList.length,
             itemBuilder: (BuildContext context, int index) {
               return new ListTile(
-                title: Text(songList[index]),
+                title: Text(songList[index],
+                  style: TextStyle(fontSize: 24, color: Colors.indigo)),
                 leading: Radio(
                   value: index,
                   groupValue: _song,
