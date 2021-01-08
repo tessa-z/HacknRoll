@@ -3,10 +3,30 @@
 // [NavigationRailDestination]s. The main content is separated by a divider
 // (although elevation on the navigation rail can be used instead). The
 // `_selectedIndex` is updated by the `onDestinationSelected` callback.
-
+import 'secrets.dart';
+import 'utils/calendar_client.dart';
+import 'package:googleapis_auth/auth_io.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
+import 'package:googleapis/calendar/v3.dart' as cal;
+import 'utils/texttospeech.dart';
+import 'package:audioplayers/audio_cache.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  // Google Sign in
+  WidgetsFlutterBinding.ensureInitialized();
+  await DotEnv().load('.env');
+  var _clientID = new ClientId(Secret.getId(), "");
+  const _scopes = const [cal.CalendarApi.CalendarScope];
+  await clientViaUserConsent(_clientID, _scopes, prompt).then((AuthClient client) async {
+    CalendarClient.calendar = cal.CalendarApi(client);
+  });
+
+;  runApp(MyApp());
+} 
 
 /// This is the main application widget.
 class MyApp extends StatelessWidget {
@@ -18,6 +38,14 @@ class MyApp extends StatelessWidget {
       title: _title,
       home: MyStatefulWidget(),
     );
+  }
+}
+
+void prompt(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
   }
 }
 
@@ -33,6 +61,11 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
   List<Widget> screens = [Alarm(), Music(), Water(), About()];
+
+  CalendarClient calendarClient = CalendarClient();
+  var CalendarData;
+  AudioCache audioCache = AudioCache();
+  AudioPlayer advancedPlayer = AudioPlayer();
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +112,34 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           Expanded(
               child: screens[_selectedIndex]
           ),
+          // Get Calendar Data
+          FloatingActionButton(
+            onPressed: () async {
+              calendarClient.extract()
+                .then((eventData) async {
+                  debugPrint(eventData.toString()); 
+                
+                  // Set calendar events
+                  setState(() {
+                    CalendarData = eventData;
+                  });
+                  
+                  // Create .wav file & play
+                  textToSpeech(eventData,'audio')
+                    .then((audiofilepath) async {
+                      int response = await advancedPlayer.play(audiofilepath, isLocal: true);
+                    })
+                    .catchError(
+                      (e) => print(e),
+                    );
+                })
+                .catchError(
+                  (e) => print(e),
+                );
+            },
+            child: Icon(Icons.navigation),
+            backgroundColor: Colors.green,
+          )
         ],
       ),
     );
@@ -258,3 +319,5 @@ class About extends StatelessWidget {
     );
   }
 }
+
+
