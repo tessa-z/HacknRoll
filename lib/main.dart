@@ -39,6 +39,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('Morning Pal'),
       ),
       body: Row(
@@ -95,25 +96,53 @@ class Featured extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Choose Your Alarm!'),
-      ),
       body: ListView(
         scrollDirection: Axis.vertical,
         children: <Widget>[
           CurvedListItem(
-            title: '05:00',
-            color: Colors.red,
-            nextColor: Colors.green,
-          ),
-          CurvedListItem(
-            title: '05:30',
-            color: Colors.green,
-            nextColor: Colors.yellow,
-          ),
-          CurvedListItem(
             title: '06:00',
-            color: Colors.yellow,
+            color: Colors.indigo[900],
+            nextColor: Colors.indigo[800],
+          ),
+          CurvedListItem(
+            title: '06:30',
+            color: Colors.indigo[800],
+            nextColor: Colors.indigo[700],
+          ),
+          CurvedListItem(
+            title: '07:00',
+            color: Colors.indigo[700],
+            nextColor: Colors.indigo[600],
+          ),
+          CurvedListItem(
+            title: '07:30',
+            color: Colors.indigo[600],
+            nextColor: Colors.indigo[500],
+          ),
+          CurvedListItem(
+            title: '08:00',
+            color: Colors.indigo[500],
+            nextColor: Colors.indigo[400],
+          ),
+          CurvedListItem(
+            title: '08:30',
+            color: Colors.indigo[400],
+            nextColor: Colors.blue[500],
+          ),
+          CurvedListItem(
+            title: '09:00',
+            color: Colors.blue[500],
+            nextColor: Colors.blue[400],
+          ),
+          CurvedListItem(
+            title: '09:30',
+            color: Colors.blue[400],
+            nextColor: Colors.blue[300],
+          ),
+          CurvedListItem(
+            title: '10:00',
+            color: Colors.blue[300],
+            nextColor: Colors.blue[200],
           ),
         ],
       ),
@@ -144,13 +173,16 @@ class CurvedListItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(80.0),
+            bottomLeft: Radius.circular(0.0),
+          ),
+          border: Border.all(
+              width: 3.0
           ),
         ),
         padding: const EdgeInsets.only(
-          left: 32,
-          top: 80.0,
-          bottom: 50,
+          left: 60,
+          top: 30.0,
+          bottom: 40,
         ),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
