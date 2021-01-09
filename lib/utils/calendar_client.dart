@@ -11,7 +11,7 @@ class CalendarClient {
     String eventData = '';
     
     String calendarId = 'primary';
-    DateTime now = new DateTime.now().add(new Duration(hours: 8));
+     DateTime now = new DateTime.now().add(new Duration(hours: 8));
     DateTime dateStart = now.toUtc();
     DateTime dateEnd = ((new DateTime(now.year, now.month, now.day)).add(new Duration(days:1, hours:8))).toUtc();  
     print('dateStart: $dateStart');
