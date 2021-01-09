@@ -150,6 +150,7 @@ class _MusicState extends State<Music> {
   var _song = 0;
   var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -182,6 +183,38 @@ class _MusicState extends State<Music> {
               );
             },
           ),
+          ElevatedButton(
+            onPressed: () async {
+              // Validate returns true if the form is valid, otherwise false.
+
+                Scaffold.of(context).showSnackBar(
+                    SnackBar(content: Text('Sending music data')));
+
+                try {
+                  BluetoothConnection connection = await BluetoothConnection
+                      .toAddress(
+                      "00:19:10:08:56:53");
+                  print('Connected to the device');
+
+                  connection.output.add(ascii.encode(_song.toString()));
+
+                  connection.input.listen((Uint8List data) {
+                    print('Data incoming: ${ascii.decode(data)}');
+                    connection.output.add(data); // Sending data
+
+                    if (ascii.decode(data).contains('!')) {
+                      connection.finish(); // Closing connection
+                      print('Disconnecting by local host');
+                    }
+                  }).onDone(() {
+                    print('Disconnected by remote request');
+                  });
+                } catch (exception) {
+                  print('Cannot connect, exception occurred');
+                }
+              },
+            child: Text('Confirm'),
+          )
         ],
       ),
     );
