@@ -119,26 +119,23 @@ class _AlarmState extends State<Alarm> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Set Your Alarm!'),
         centerTitle: true,
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30.0),
-          child: ListTile(
-            title: Text(time,
-              style: TextStyle(fontSize: 40, color: Colors.indigo)),
-            trailing: Icon(Icons.alarm, size:60),
-            onTap: () {
-              selectTime(context);
-              time = '${_time.hour}:${_time.minute}';
-            },
-          )
-        )
-      ),
+          child: Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: ListTile(
+                title: Text(time,
+                    style: TextStyle(fontSize: 40, color: Colors.indigo)),
+                trailing: Icon(Icons.alarm, size: 60),
+                onTap: () {
+                  selectTime(context);
+                  time = '${_time.hour}:${_time.minute}';
+                },
+              ))),
     );
   }
 }
@@ -172,7 +169,7 @@ class _MusicState extends State<Music> {
             itemBuilder: (BuildContext context, int index) {
               return new ListTile(
                 title: Text(songList[index],
-                  style: TextStyle(fontSize: 24, color: Colors.indigo)),
+                    style: TextStyle(fontSize: 24, color: Colors.indigo)),
                 leading: Radio(
                   value: index,
                   groupValue: _song,
@@ -197,7 +194,7 @@ class Water extends StatefulWidget {
 }
 
 class _WaterState extends State<Water> {
-  var _waterVolume = 0;
+  var _waterVolume = '0';
   final _counterFormKey = GlobalKey<FormState>();
 
   @override
@@ -221,9 +218,7 @@ class _WaterState extends State<Water> {
                 TextFormField(
                   // The validator receives the text that the user has entered.
                   decoration: const InputDecoration(
-                    hintText: 'Recommended 650ml',
-                    labelText: 'Volume (ml)'
-                  ),
+                      hintText: 'Recommended 650ml', labelText: 'Volume (ml)'),
                   validator: (value) {
                     if (value.isEmpty) {
                       return 'Drink up or else';
@@ -231,11 +226,12 @@ class _WaterState extends State<Water> {
                     if (!helper.isNumeric(value)) {
                       return ('You want to drink $value?');
                     }
+                    _waterVolume = value;
                     return null;
                   },
                 ),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Validate returns true if the form is valid, otherwise false.
                     if (_counterFormKey.currentState.validate()) {
                       // If the form is valid, display a snackbar. In the real world,
@@ -243,6 +239,29 @@ class _WaterState extends State<Water> {
 
                       Scaffold.of(context).showSnackBar(
                           SnackBar(content: Text('Sending data')));
+
+                      try {
+                          BluetoothConnection connection = await BluetoothConnection
+                              .toAddress(
+                              "00:19:10:08:56:53");
+                          print('Connected to the device');
+
+                        connection.output.add(ascii.encode(_waterVolume));
+
+                        connection.input.listen((Uint8List data) {
+                          print('Data incoming: ${ascii.decode(data)}');
+                          connection.output.add(data); // Sending data
+
+                          if (ascii.decode(data).contains('!')) {
+                            connection.finish(); // Closing connection
+                            print('Disconnecting by local host');
+                          }
+                        }).onDone(() {
+                          print('Disconnected by remote request');
+                        });
+                      } catch (exception) {
+                        print('Cannot connect, exception occurred');
+                      }
                     }
                   },
                   child: Text('Confirm'),
@@ -282,40 +301,39 @@ class BluetoothDeviceListEntry extends ListTile {
     GestureLongPressCallback onLongPress,
     bool enabled = true,
   }) : super(
-    onTap: onTap,
-    onLongPress: onLongPress,
-    enabled: enabled,
-    leading:
-    Icon(Icons.devices),
-    title: Text(device.name ?? "Unknown device"),
-    subtitle: Text(device.address.toString()),
-    trailing: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        rssi != null
-            ? Container(
-          margin: new EdgeInsets.all(8.0),
-          child: DefaultTextStyle(
-            style: _computeTextStyle(rssi),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(rssi.toString()),
-                Text('dBm'),
-              ],
-            ),
+          onTap: onTap,
+          onLongPress: onLongPress,
+          enabled: enabled,
+          leading: Icon(Icons.devices),
+          title: Text(device.name ?? "Unknown device"),
+          subtitle: Text(device.address.toString()),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              rssi != null
+                  ? Container(
+                      margin: new EdgeInsets.all(8.0),
+                      child: DefaultTextStyle(
+                        style: _computeTextStyle(rssi),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Text(rssi.toString()),
+                            Text('dBm'),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Container(width: 0, height: 0),
+              device.isConnected
+                  ? Icon(Icons.import_export)
+                  : Container(width: 0, height: 0),
+              device.isBonded
+                  ? Icon(Icons.link)
+                  : Container(width: 0, height: 0),
+            ],
           ),
-        )
-            : Container(width: 0, height: 0),
-        device.isConnected
-            ? Icon(Icons.import_export)
-            : Container(width: 0, height: 0),
-        device.isBonded
-            ? Icon(Icons.link)
-            : Container(width: 0, height: 0),
-      ],
-    ),
-  );
+        );
 
   static TextStyle _computeTextStyle(int rssi) {
     /**/ if (rssi >= -35)
@@ -347,6 +365,7 @@ class BluetoothDeviceListEntry extends ListTile {
 
 class Bluetooth extends StatefulWidget {
   final bool start = false;
+
   @override
   _BluetoothState createState() => _BluetoothState();
 }
@@ -380,10 +399,10 @@ class _BluetoothState extends State<Bluetooth> {
   void _startDiscovery() {
     _streamSubscription =
         FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
-          setState(() {
-            results.add(r);
-          });
-        });
+      setState(() {
+        results.add(r);
+      });
+    });
 
     _streamSubscription.onDone(() {
       setState(() {
@@ -404,23 +423,21 @@ class _BluetoothState extends State<Bluetooth> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: isDiscovering
-            ? Text('Discovering')
-            : Text('Discovered'),
+        title: isDiscovering ? Text('Discovering') : Text('Discovered'),
         actions: <Widget>[
           isDiscovering
               ? FittedBox(
-            child: Container(
-              margin: new EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            ),
-          )
+                  child: Container(
+                    margin: new EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                )
               : IconButton(
-            icon: Icon(Icons.replay),
-            onPressed: _restartDiscovery,
-          )
+                  icon: Icon(Icons.replay),
+                  onPressed: _restartDiscovery,
+                )
         ],
       ),
       body: ListView.builder(
@@ -433,7 +450,8 @@ class _BluetoothState extends State<Bluetooth> {
             onTap: () async {
               // Some simplest connection :F
               try {
-                BluetoothConnection connection = await BluetoothConnection.toAddress(result.device.address);
+                BluetoothConnection connection =
+                    await BluetoothConnection.toAddress(result.device.address);
                 print('Connected to the device');
 
                 connection.input.listen((Uint8List data) {
@@ -447,8 +465,7 @@ class _BluetoothState extends State<Bluetooth> {
                 }).onDone(() {
                   print('Disconnected by remote request');
                 });
-              }
-              catch (exception) {
+              } catch (exception) {
                 print('Cannot connect, exception occurred');
               }
             },
