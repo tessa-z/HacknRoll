@@ -8,7 +8,7 @@ class Secret {
 
 String API_KEY = DotEnv().env['API_KEY'];
 const BASE_URL = 'https://texttospeech.googleapis.com/v1/';
-const VOICE_NAME = 'en-US-Wavenet-D';
+const VOICE_NAME = 'en-US-Wavenet-I';
 const AUDIO_ENCODING = 'MP3';
 const LANGUAGE_CODE = 'en-us';
 //const SSML_GENDER = 'MALE';
