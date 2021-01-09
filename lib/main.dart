@@ -3,30 +3,11 @@
 // [NavigationRailDestination]s. The main content is separated by a divider
 // (although elevation on the navigation rail can be used instead). The
 // `_selectedIndex` is updated by the `onDestinationSelected` callback.
-import 'secrets.dart';
-import 'utils/calendar_client.dart';
-import 'package:googleapis_auth/auth_io.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import 'package:flutter/material.dart';
-import 'package:googleapis/calendar/v3.dart' as cal;
-import 'utils/texttospeech.dart';
-import 'package:audioplayers/audio_cache.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flute_music_player/flute_music_player.dart';
 
-Future<void> main() async {
-  // Google Sign in
-  WidgetsFlutterBinding.ensureInitialized();
-  await DotEnv().load('.env');
-  var _clientID = new ClientId(Secret.getId(), "");
-  const _scopes = const [cal.CalendarApi.CalendarScope];
-  await clientViaUserConsent(_clientID, _scopes, prompt).then((AuthClient client) async {
-    CalendarClient.calendar = cal.CalendarApi(client);
-  });
-
-;  runApp(MyApp());
-} 
+void main() => runApp(MyApp());
 
 /// This is the main application widget.
 class MyApp extends StatelessWidget {
@@ -38,14 +19,6 @@ class MyApp extends StatelessWidget {
       title: _title,
       home: MyStatefulWidget(),
     );
-  }
-}
-
-void prompt(String url) async {
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Could not launch $url';
   }
 }
 
@@ -61,11 +34,6 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
   List<Widget> screens = [Alarm(), Music(), Water(), About()];
-
-  CalendarClient calendarClient = CalendarClient();
-  var CalendarData;
-  AudioCache audioCache = AudioCache();
-  AudioPlayer advancedPlayer = AudioPlayer();
 
   @override
   Widget build(BuildContext context) {
@@ -112,34 +80,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           Expanded(
               child: screens[_selectedIndex]
           ),
-          // Get Calendar Data
-          FloatingActionButton(
-            onPressed: () async {
-              calendarClient.extract()
-                .then((eventData) async {
-                  debugPrint(eventData.toString()); 
-                
-                  // Set calendar events
-                  setState(() {
-                    CalendarData = eventData;
-                  });
-                  
-                  // Create .wav file & play
-                  textToSpeech(eventData,'audio')
-                    .then((audiofilepath) async {
-                      int response = await advancedPlayer.play(audiofilepath, isLocal: true);
-                    })
-                    .catchError(
-                      (e) => print(e),
-                    );
-                })
-                .catchError(
-                  (e) => print(e),
-                );
-            },
-            child: Icon(Icons.navigation),
-            backgroundColor: Colors.green,
-          )
         ],
       ),
     );
@@ -208,74 +148,90 @@ class Music extends StatefulWidget {
 }
 
 class _MusicState extends State<Music> {
-  var _song = 0;
-  var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
+  List<Song> _songs;
+  @override
+  void initState() {
+    super.initState();
+    initPlayer();
+  }
+
+  void initPlayer() async{
+    var songs = await MusicFinder.allSongs();
+    songs = new List.from(songs);
+    setState((){
+      _songs = songs;
+    });
+  }
 
   @override
-  Widget build(BuildContext context) {
-
-    return Container(
-      padding: EdgeInsets.all(12.0),
-      child: ListView(
-        children: <Widget>[
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-          ]),
-          Text(
-            "Choose Your Music!",
-            style: TextStyle(
-                fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold),
-          ),
-          // ListTile(
-          //   title: Text(songList[0]),
-          //   leading: Radio(
-          //     value: 0,
-          //     groupValue: _song,
-          //     onChanged: (value) {
-          //       this.setState((){
-          //         _song = value;
-          //       });
-          //     },
-          //   ),
-          // ),
-          // ListTile(
-          //   title: Text(songList[1]),
-          //   leading: Radio(
-          //     value: 1,
-          //     groupValue: _song,
-          //     onChanged: (value) {
-          //       this.setState((){
-          //         _song = value;
-          //       });
-          //     },
-          //   ),
-          // ),
-          ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: songList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return new ListTile(
-                title: Text(songList[index],
-                  style: TextStyle(fontSize: 24, color: Colors.indigo)),
-                leading: Radio(
-                  value: index,
-                  groupValue: _song,
-                  onChanged: (value) {
-                    this.setState(() {
-                      _song = value;
-                    });
-                  },
-                ),
-              );
-            },
-          )
-        ],
-      ),
-    );
-
-
+  // ignore: missing_return
+  Widget build(BuildContext context){
+      return new Scaffold(
+        appBar: new AppBar(
+          title: new Text("Choose your music!"),
+        ),
+        body: new ListView.builder(
+          itemCount: _songs.length,
+          itemBuilder: (context, int index) {
+            return new ListTile(
+              leading: new CircleAvatar(
+                child: new Text(_songs[index].title[0]),
+              ),
+              title: new Text(_songs[index].title),
+            );
+          },
+        )
+      );
   }
 }
+
+
+// class _MusicState extends State<Music> {
+//   var _song = 0;
+//   var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
+//
+//   @override
+//   Widget build(BuildContext context) {
+//
+//     return Container(
+//       padding: EdgeInsets.all(12.0),
+//       child: ListView(
+//         children: <Widget>[
+//           Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+//           ]),
+//           Text(
+//             "Choose Your Music!",
+//             style: TextStyle(
+//                 fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold),
+//           ),
+//
+//           ListView.builder(
+//             scrollDirection: Axis.vertical,
+//             shrinkWrap: true,
+//             itemCount: songList.length,
+//             itemBuilder: (BuildContext context, int index) {
+//               return new ListTile(
+//                 title: Text(songList[index],
+//                   style: TextStyle(fontSize: 24, color: Colors.indigo)),
+//                 leading: Radio(
+//                   value: index,
+//                   groupValue: _song,
+//                   onChanged: (value) {
+//                     this.setState(() {
+//                       _song = value;
+//                     });
+//                   },
+//                 ),
+//               );
+//             },
+//           )
+//         ],
+//       ),
+//     );
+
+
+//   }
+// }
 
 class Water extends StatelessWidget {
   @override
@@ -319,5 +275,3 @@ class About extends StatelessWidget {
     );
   }
 }
-
-

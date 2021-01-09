@@ -24,6 +24,7 @@ dependencies:
   clock: ^1.0.1
   flutter:
     sdk: flutter
+  flute_music_player:
   flutter_localizations: # Add this line
     sdk: flutter         # Add this line
 
@@ -39,9 +40,11 @@ dependencies:
   audioplayers: ^0.14.2
   flutter_dotenv: ^2.1.0
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
