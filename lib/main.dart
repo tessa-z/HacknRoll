@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter/material.dart';
 import 'helperFunctions.dart' as helper;
+import 'package:flute_music_player/flute_music_player.dart';
 
 /// Flutter code sample for NavigationRail
 // This example shows a [NavigationRail] used within a Scaffold with 3
@@ -147,76 +148,110 @@ class Music extends StatefulWidget {
 }
 
 class _MusicState extends State<Music> {
-  var _song = 0;
-  var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
+  // var _song = 0;
+  // var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
+  //
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Container(
+  //     padding: EdgeInsets.all(12.0),
+  //     child: ListView(
+  //       children: <Widget>[
+  //         Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[]),
+  //         Text(
+  //           "Choose Your Music!",
+  //           style: TextStyle(
+  //               fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold),
+  //         ),
+  //         ListView.builder(
+  //           scrollDirection: Axis.vertical,
+  //           shrinkWrap: true,
+  //           itemCount: songList.length,
+  //           itemBuilder: (BuildContext context, int index) {
+  //             return new ListTile(
+  //               title: Text(songList[index],
+  //                   style: TextStyle(fontSize: 24, color: Colors.indigo)),
+  //               leading: Radio(
+  //                 value: index,
+  //                 groupValue: _song,
+  //                 onChanged: (value) {
+  //                   setState(() {
+  //                     _song = value;
+  //                   });
+  //                 },
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //         ElevatedButton(
+  //           onPressed: () async {
+  //             // Validate returns true if the form is valid, otherwise false.
+  //
+  //               Scaffold.of(context).showSnackBar(
+  //                   SnackBar(content: Text('Sending music data')));
+  //
+  //               try {
+  //                 BluetoothConnection connection = await BluetoothConnection
+  //                     .toAddress(
+  //                     "00:19:10:08:56:53");
+  //                 print('Connected to the device');
+  //
+  //                 connection.output.add(ascii.encode(_song.toString()));
+  //
+  //                 connection.input.listen((Uint8List data) {
+  //                   print('Data incoming: ${ascii.decode(data)}');
+  //                   connection.output.add(data); // Sending data
+  //
+  //                   if (ascii.decode(data).contains('!')) {
+  //                     connection.finish(); // Closing connection
+  //                     print('Disconnecting by local host');
+  //                   }
+  //                 }).onDone(() {
+  //                   print('Disconnected by remote request');
+  //                 });
+  //               } catch (exception) {
+  //                 print('Cannot connect, exception occurred');
+  //               }
+  //             },
+  //           child: Text('Confirm'),
+  //         )
+  //       ],
+  //     ),
+  //   );
+  // }
+  List<Song> _songs;
+  @override
+  void initState() {
+    super.initState();
+    initPlayer();
+  }
 
+  void initPlayer() async{
+    var songs = await MusicFinder.allSongs();
+    songs = new List.from(songs);
+    setState((){
+      _songs = songs;
+    });
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12.0),
-      child: ListView(
-        children: <Widget>[
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[]),
-          Text(
-            "Choose Your Music!",
-            style: TextStyle(
-                fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold),
-          ),
-          ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: songList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return new ListTile(
-                title: Text(songList[index],
-                    style: TextStyle(fontSize: 24, color: Colors.indigo)),
-                leading: Radio(
-                  value: index,
-                  groupValue: _song,
-                  onChanged: (value) {
-                    setState(() {
-                      _song = value;
-                    });
-                  },
-                ),
-              );
-            },
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              // Validate returns true if the form is valid, otherwise false.
-
-                Scaffold.of(context).showSnackBar(
-                    SnackBar(content: Text('Sending music data')));
-
-                try {
-                  BluetoothConnection connection = await BluetoothConnection
-                      .toAddress(
-                      "00:19:10:08:56:53");
-                  print('Connected to the device');
-
-                  connection.output.add(ascii.encode(_song.toString()));
-
-                  connection.input.listen((Uint8List data) {
-                    print('Data incoming: ${ascii.decode(data)}');
-                    connection.output.add(data); // Sending data
-
-                    if (ascii.decode(data).contains('!')) {
-                      connection.finish(); // Closing connection
-                      print('Disconnecting by local host');
-                    }
-                  }).onDone(() {
-                    print('Disconnected by remote request');
-                  });
-                } catch (exception) {
-                  print('Cannot connect, exception occurred');
-                }
-              },
-            child: Text('Confirm'),
-          )
-        ],
-      ),
+  // ignore: missing_return
+  Widget build(BuildContext context){
+    return new Scaffold(
+        appBar: new AppBar(
+          title: new Text("Choose your music!"),
+        ),
+        body: new ListView.builder(
+          itemCount: _songs.length,
+          itemBuilder: (context, int index) {
+            return new ListTile(
+              leading: new CircleAvatar(
+                child: new Text(_songs[index].title[0]),
+              ),
+              title: new Text(_songs[index].title),
+            );
+          },
+        )
     );
   }
 }
