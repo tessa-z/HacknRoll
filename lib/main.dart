@@ -5,6 +5,7 @@
 // `_selectedIndex` is updated by the `onDestinationSelected` callback.
 
 import 'package:flutter/material.dart';
+import 'package:flute_music_player/flute_music_player.dart';
 
 void main() => runApp(MyApp());
 
@@ -147,74 +148,90 @@ class Music extends StatefulWidget {
 }
 
 class _MusicState extends State<Music> {
-  var _song = 0;
-  var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
+  List<Song> _songs;
+  @override
+  void initState() {
+    super.initState();
+    initPlayer();
+  }
+
+  void initPlayer() async{
+    var songs = await MusicFinder.allSongs();
+    songs = new List.from(songs);
+    setState((){
+      _songs = songs;
+    });
+  }
 
   @override
-  Widget build(BuildContext context) {
-
-    return Container(
-      padding: EdgeInsets.all(12.0),
-      child: ListView(
-        children: <Widget>[
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-          ]),
-          Text(
-            "Choose Your Music!",
-            style: TextStyle(
-                fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold),
-          ),
-          // ListTile(
-          //   title: Text(songList[0]),
-          //   leading: Radio(
-          //     value: 0,
-          //     groupValue: _song,
-          //     onChanged: (value) {
-          //       this.setState((){
-          //         _song = value;
-          //       });
-          //     },
-          //   ),
-          // ),
-          // ListTile(
-          //   title: Text(songList[1]),
-          //   leading: Radio(
-          //     value: 1,
-          //     groupValue: _song,
-          //     onChanged: (value) {
-          //       this.setState((){
-          //         _song = value;
-          //       });
-          //     },
-          //   ),
-          // ),
-          ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: songList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return new ListTile(
-                title: Text(songList[index],
-                  style: TextStyle(fontSize: 24, color: Colors.indigo)),
-                leading: Radio(
-                  value: index,
-                  groupValue: _song,
-                  onChanged: (value) {
-                    this.setState(() {
-                      _song = value;
-                    });
-                  },
-                ),
-              );
-            },
-          )
-        ],
-      ),
-    );
-
-
+  // ignore: missing_return
+  Widget build(BuildContext context){
+      return new Scaffold(
+        appBar: new AppBar(
+          title: new Text("Choose your music!"),
+        ),
+        body: new ListView.builder(
+          itemCount: _songs.length,
+          itemBuilder: (context, int index) {
+            return new ListTile(
+              leading: new CircleAvatar(
+                child: new Text(_songs[index].title[0]),
+              ),
+              title: new Text(_songs[index].title),
+            );
+          },
+        )
+      );
   }
 }
+
+
+// class _MusicState extends State<Music> {
+//   var _song = 0;
+//   var songList = ["Pixel Galaxy", "Sunday", "Snailchan Adventure"];
+//
+//   @override
+//   Widget build(BuildContext context) {
+//
+//     return Container(
+//       padding: EdgeInsets.all(12.0),
+//       child: ListView(
+//         children: <Widget>[
+//           Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+//           ]),
+//           Text(
+//             "Choose Your Music!",
+//             style: TextStyle(
+//                 fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold),
+//           ),
+//
+//           ListView.builder(
+//             scrollDirection: Axis.vertical,
+//             shrinkWrap: true,
+//             itemCount: songList.length,
+//             itemBuilder: (BuildContext context, int index) {
+//               return new ListTile(
+//                 title: Text(songList[index],
+//                   style: TextStyle(fontSize: 24, color: Colors.indigo)),
+//                 leading: Radio(
+//                   value: index,
+//                   groupValue: _song,
+//                   onChanged: (value) {
+//                     this.setState(() {
+//                       _song = value;
+//                     });
+//                   },
+//                 ),
+//               );
+//             },
+//           )
+//         ],
+//       ),
+//     );
+
+
+//   }
+// }
 
 class Water extends StatelessWidget {
   @override
